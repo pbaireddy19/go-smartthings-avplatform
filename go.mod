@@ -1,4 +1,4 @@
-module go-smartthings-avplatform
+module github.com/pbaireddy19/go-smartthings-avplatform
 
 go 1.13
 

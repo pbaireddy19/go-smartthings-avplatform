@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"go-smartthings-avplatform/models"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/pbaireddy19/go-smartthings-avplatform/models"
 )
 
 // Client implements a Smartthings client
@@ -24,7 +25,6 @@ func New(config *Config) *Client {
 
 //GetSource - Fetches the source details
 func (c *Client) GetSource(sourceID string) (models.GetSourceResponse, error) {
-
 	sourceResp := models.GetSourceResponse{}
 	req, err := http.NewRequest("GET", ST_AV_URL+"/source", nil)
 
