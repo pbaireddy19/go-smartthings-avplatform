@@ -1,6 +1,7 @@
 package smartthings
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -11,7 +12,7 @@ func TestClient_Get_Source(t *testing.T) {
 	config := Config{&http.Client{}, ""}
 	c := Client{&config}
 
-	_, err := c.GetSource("")
-
+	x, err := c.GetSource("")
+	fmt.Println(x[0])
 	assert.Equal(t, err, nil)
 }

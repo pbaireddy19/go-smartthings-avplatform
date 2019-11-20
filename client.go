@@ -24,12 +24,13 @@ func New(config *Config) *Client {
 }
 
 //GetSource - Fetches the source details
-func (c *Client) GetSource(sourceID string) (models.GetSourceResponse, error) {
+func (c *Client) GetSource(sourceID string) ([]models.CameraConfig, error) {
 	sourceResp := models.GetSourceResponse{}
+
 	req, err := http.NewRequest("GET", ST_AV_URL+"/source", nil)
 
 	if err != nil {
-		return sourceResp, err
+		return nil, err
 	}
 
 	params := url.Values{}
@@ -41,23 +42,52 @@ func (c *Client) GetSource(sourceID string) (models.GetSourceResponse, error) {
 	resp, err := c.Config.HTTPClient.Do(req)
 
 	if err != nil {
-		return sourceResp, err
+		return nil, err
 	}
 
 	if resp.StatusCode == 200 {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return sourceResp, err
+			return nil, err
 		}
 		fmt.Println(string(body))
 		err = json.Unmarshal(body, &sourceResp)
 
-		if err != nil {
-			return sourceResp, err
+		if err == nil {
+			highProfile := sourceResp.Source.Profiles.High
+			mediumProfile := sourceResp.Source.Profiles.Medium
+			lowProfile := sourceResp.Source.Profiles.Low
+
+			camConfig := models.CameraConfig{}
+			//TODO: Figure out to fetch it dynamically
+			camConfig.Protocols = []string{"RTSP"}
+			if len(highProfile.Media.Tracks) == 2 {
+				if highProfile.Media.Tracks[0].Type == "video" {
+					camConfig.Resolutions = []models.Resolution{models.Resolution{Width: highProfile.Media.Tracks[0].Width, Height: highProfile.Media.Tracks[0].Height},
+						models.Resolution{Width: mediumProfile.Media.Tracks[0].Width, Height: mediumProfile.Media.Tracks[0].Height},
+						models.Resolution{Width: lowProfile.Media.Tracks[0].Width, Height: lowProfile.Media.Tracks[0].Height}}
+					camConfig.VideoCodecs = []string{highProfile.Media.Tracks[0].Codec}
+					camConfig.AudioCodecs = []string{highProfile.Media.Tracks[1].Codec}
+				} else {
+					camConfig.Resolutions = []models.Resolution{models.Resolution{Width: highProfile.Media.Tracks[1].Width, Height: highProfile.Media.Tracks[1].Height},
+						models.Resolution{Width: mediumProfile.Media.Tracks[1].Width, Height: mediumProfile.Media.Tracks[1].Height},
+						models.Resolution{Width: lowProfile.Media.Tracks[1].Width, Height: lowProfile.Media.Tracks[1].Height}}
+					camConfig.VideoCodecs = []string{highProfile.Media.Tracks[1].Codec}
+					camConfig.AudioCodecs = []string{highProfile.Media.Tracks[0].Codec}
+				}
+
+				camConfig.AuthorizationTypes = []string{"BASIC"}
+
+				return []models.CameraConfig{camConfig}, err
+			} else {
+				return nil, err
+			}
+		} else {
+			return nil, err
 		}
 	} else {
-		return sourceResp, errors.New("failed to retrieve source info " + resp.Status)
+		return nil, errors.New("failed to retrieve source info " + resp.Status)
 	}
 
-	return sourceResp, err
+	return nil, err
 }

@@ -100,3 +100,16 @@ type GetSourceResponse struct {
 		ClipRetentionDays int `json:"clip_retention_days"`
 	} `json:"source"`
 }
+
+type CameraConfig struct {
+	Protocols          []string     `json:"protocols"`
+	Resolutions        []Resolution `json:"resolutions"`
+	AuthorizationTypes []string     `json:"authorizationTypes"`
+	VideoCodecs        []string     `json:"videoCodecs"`
+	AudioCodecs        []string     `json:"audioCodecs"`
+}
+
+type Resolution struct {
+	Width  int `json:"width"`
+	Height int `json:"height"`
+}
