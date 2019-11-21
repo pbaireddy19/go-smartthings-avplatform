@@ -3,7 +3,6 @@ package smartthings
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -24,13 +23,13 @@ func New(config *Config) *Client {
 }
 
 //GetSource - Fetches the source details
-func (c *Client) GetSource(sourceID string) ([]models.CameraConfig, error) {
+func (c *Client) GetSource(sourceID string) (string, error) {
 	sourceResp := models.GetSourceResponse{}
 
 	req, err := http.NewRequest("GET", ST_AV_URL+"/source", nil)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	params := url.Values{}
@@ -42,15 +41,15 @@ func (c *Client) GetSource(sourceID string) ([]models.CameraConfig, error) {
 	resp, err := c.Config.HTTPClient.Do(req)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	if resp.StatusCode == 200 {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
-		fmt.Println(string(body))
+		//fmt.Println(string(body))
 		err = json.Unmarshal(body, &sourceResp)
 
 		if err == nil {
@@ -78,16 +77,22 @@ func (c *Client) GetSource(sourceID string) ([]models.CameraConfig, error) {
 
 				camConfig.AuthorizationTypes = []string{"BASIC"}
 
-				return []models.CameraConfig{camConfig}, err
+				responseMarshalled, err := json.Marshal([]models.CameraConfig{camConfig})
+
+				if err != nil {
+					return "", err
+				}
+
+				return string(responseMarshalled), err
 			} else {
-				return nil, err
+				return "", err
 			}
 		} else {
-			return nil, err
+			return "", err
 		}
 	} else {
-		return nil, errors.New("failed to retrieve source info " + resp.Status)
+		return "", errors.New("failed to retrieve source info " + resp.Status)
 	}
 
-	return nil, err
+	return "", err
 }
