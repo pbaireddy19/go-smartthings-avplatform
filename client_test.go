@@ -12,7 +12,7 @@ func TestClient_Get_Source(t *testing.T) {
 	config := Config{&http.Client{}, ""}
 	c := Client{&config}
 
-	x, err := c.GetSource("", "sdsd")
+	x, err := c.GetSource("", "")
 	fmt.Println(x)
 	assert.Equal(t, err, nil)
 }
