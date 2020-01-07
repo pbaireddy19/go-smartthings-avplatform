@@ -9,6 +9,7 @@ import (
 
 	"github.com/pbaireddy19/go-smartthings-avplatform/constants"
 	"github.com/pbaireddy19/go-smartthings-avplatform/models"
+	"github.com/pbaireddy19/go-smartthings-avplatform/utils"
 )
 
 // Client implements a Smartthings client
@@ -24,21 +25,21 @@ func New(config *Config) *Client {
 }
 
 //GetSource - Fetches the source details
-func (c *Client) GetSource(sourceID string, manufacturer string) (string, error) {
+func (c *Client) GetSource(sourceID string, manufacturer string, env string) (string, error) {
 
 	switch manufacturer {
 	case constants.CameraSmartthings, constants.CameraUnknown:
-		return c.getSmartthingsCamInfo(sourceID)
+		return c.getSmartthingsCamInfo(sourceID, env)
 	default:
 		return "", errors.New("Not Found")
 	}
 	return "", errors.New("Error retrieving the source")
 }
 
-func (c *Client) getSmartthingsCamInfo(sourceID string) (string, error) {
+func (c *Client) getSmartthingsCamInfo(sourceID string, env string) (string, error) {
 	sourceResp := models.GetSourceResponse{}
 
-	req, err := http.NewRequest("GET", ST_AV_URL+"/source", nil)
+	req, err := http.NewRequest("GET", utils.GetAVPlatformUrl(env)+"/source", nil)
 
 	if err != nil {
 		return "", err
