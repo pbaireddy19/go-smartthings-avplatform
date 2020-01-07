@@ -8,14 +8,15 @@ const STAVUrlDev = "https://api.d.st-av.net/v1"
 func GetAVPlatformUrl(env string) string {
 
 	switch env {
-	case "DEV":
+	case "development":
 		return STAVUrlDev
-	case "ACCEPT":
-		return STAVUrlAccept
-	case "PROD":
-		return STAVUrlProd
-	case "STAG":
+	case "staging":
 		return STAVUrlStag
+	case "acceptance":
+		return STAVUrlAccept
+	case "production":
+		return STAVUrlProd
+
 	default:
 		return ""
 	}
